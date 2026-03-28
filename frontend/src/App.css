@@ -1,0 +1,66 @@
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #000000;
+  font-family: "Courier New", monospace;
+}
+
+.container {
+  max-width: 700px;
+  margin: 80px auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.input-box {
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid black;
+  padding-bottom: 10px;
+}
+
+.input-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.input-box button {
+  border: 1px solid black;
+  background: none;
+  cursor: pointer;
+}
+
+.response {
+  margin-top: 40px;
+  border-top: 1px dashed black;
+  padding-top: 20px;
+}
+
+.label {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.meta {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 10px;
+}
+
+.typewriter {
+  border-right: 2px solid black;
+  white-space: pre-wrap;
+  animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}

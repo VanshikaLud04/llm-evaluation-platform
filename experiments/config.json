@@ -1,0 +1,7 @@
+{
+    "experiment_name": "rag_vs_routing",
+    "model": "phi",
+    "use_rag": true,
+    "use_routing": true,
+    "num_queries": 50
+  }

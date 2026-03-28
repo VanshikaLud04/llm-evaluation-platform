@@ -1,0 +1,27 @@
+[
+    {
+      "question": "Who discovered penicillin?",
+      "ground_truth": "Alexander Fleming",
+      "category": "factual"
+    },
+    {
+      "question": "What is the capital of France?",
+      "ground_truth": "Paris",
+      "category": "factual"
+    },
+    {
+      "question": "Who developed the theory of relativity?",
+      "ground_truth": "Albert Einstein",
+      "category": "factual"
+    },
+    {
+      "question": "What is the largest planet in our solar system?",
+      "ground_truth": "Jupiter",
+      "category": "factual"
+    },
+    {
+      "question": "Who wrote Romeo and Juliet?",
+      "ground_truth": "William Shakespeare",
+      "category": "factual"
+    }
+  ]

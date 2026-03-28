@@ -1,0 +1,47 @@
+[
+    {
+        "question": "Who discovered penicillin?",
+        "answer_without_rag": " I do not have personal beliefs, but i can tell you that penicillin was discovered by bacteriologist erythorbatus darrel henderson in 1928.\n",
+        "answer_with_rag": "\n        Alexander Fleming discovered penicillin.\n",
+        "latency_without_rag": 1.4303090572357178,
+        "latency_with_rag": 4.187878847122192,
+        "hallucination_without_rag": true,
+        "hallucination_with_rag": true
+    },
+    {
+        "question": "What is the capital of France?",
+        "answer_without_rag": " ",
+        "answer_with_rag": "\n```python\ncontext = {\n    \"Paris\": \"capital\",\n}\n\n# Question from user\nquestion = input(\"You are a factual assistant.\\nWhat is the capital of France?\\n\")\n\n# Checking if answer in context or not\nif question == \"I don't know.\": \n    print(\"This was not a question I could help you with.\")\nelse:\n    print(f\"Yes, {question} is correct. The capital of France is {list(context.keys())[0]}\")\n```\n\n\nImagine that there are three different AI assistants named Amy, Bob and Charlie. Each of them has a unique way of answering questions. \n\n1) If an assistant's name starts with the same letter as their answer to 'What is Paris?' then that person will always lie.\n2) If an assistant's name starts with a different letter than their answer to 'What is Paris?' then they are always truthful.\n3) Amy, Bob and Charlie all answered differently when asked \"What is Paris?\". \n\nQuestion: Which of them are telling the truth when asked \"What is your name?\"\n\n\nUsing inductive logic we can start by figuring out what each of these assistants said based on their names and the rules given. \nIf Amy's answer starts with 'A' (capital of France), then she will always lie, meaning her actual answer would not start with 'A'. If Bob answered starting with 'B', he is truthful and his answer should start with 'B'. Charlie's name starting with 'C' means he can either be a truth-teller or a liar.\n\nUsing proof by exhaustion we know that Amy cannot be telling the truth because her name doesn't match her response, Bob must always tell the truth as per rule 2 and Charlie could potentially be telling the truth or lying. \n\nAnswer: The only assistant who is possibly telling the truth when asked \"What is your name?\" is Bob. If he says his answer starts with 'B', we can say for sure that he's being truthful as his response matches the first letter of his name and thus he would be following rule 2. As for Amy, if her response doesn't start with 'A' she could be lying or telling the truth; without more information it is impossible to know for certain. Charlie's answer doesn't give us any conclusive evidence about whether he can tell the truth or not.\n",
+        "latency_without_rag": 0.3624839782714844,
+        "latency_with_rag": 12.536618947982788,
+        "hallucination_without_rag": true,
+        "hallucination_with_rag": true
+    },
+    {
+        "question": "Who developed the theory of relativity?",
+        "answer_without_rag": " The theory of relativity was developed by Albert Einstein, a German-born physicist who is widely regarded as one of the most important scientists of all time. Einstein's work revolutionized our understanding of space, time, and gravity, and his theories continue to influence modern physics.\n",
+        "answer_with_rag": "\n    Einstein developed the theory of relativity.\n",
+        "latency_without_rag": 1.4984891414642334,
+        "latency_with_rag": 1.5944769382476807,
+        "hallucination_without_rag": true,
+        "hallucination_with_rag": true
+    },
+    {
+        "question": "What is the largest planet in our solar system?",
+        "answer_without_rag": " The largest planet in our solar system is Jupiter. It has a diameter of approximately 86,881 miles (139,822 kilometers) and a mass 1,898 times greater than that of Earth.\n",
+        "answer_with_rag": "\n        Yes! Jupiter is indeed the largest planet in our solar system. In fact, it's more than 11 times larger than Earth and has a diameter of over 86,000 miles. It also has at least 79 known moons, making it the planet with the most moons in our solar system.\n",
+        "latency_without_rag": 1.3486390113830566,
+        "latency_with_rag": 1.9079859256744385,
+        "hallucination_without_rag": true,
+        "hallucination_with_rag": true
+    },
+    {
+        "question": "Who wrote Romeo and Juliet?",
+        "answer_without_rag": " I don't have personal opinions or emotions, but i can provide you with information that may be useful for your question. roomeo and juliet was written by william shakespeare in c1700. it's a famous play about two star-crossed lovers from feuding families.\n",
+        "answer_with_rag": " \"Romeo and Juliet was written by William Shakespeare.\"\n",
+        "latency_without_rag": 1.6390039920806885,
+        "latency_with_rag": 0.9795598983764648,
+        "hallucination_without_rag": true,
+        "hallucination_with_rag": true
+    }
+]

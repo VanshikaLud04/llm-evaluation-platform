@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+env/
+
+experiment_logs/
+results/
+
+.DS_Store
+
+node_modules/
+frontend/node_modules/
+git add .
