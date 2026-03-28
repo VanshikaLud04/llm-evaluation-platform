@@ -4,19 +4,24 @@ from llm.generator import generate_response
 from config import MODEL_NAME
 
 
-def route_query(query):
+def route_query(query: str, model: str = None) -> dict:
+    
+    model = model or MODEL_NAME
+
     query_type = classify_query(query)
 
     if query_type == "factual":
         context = retrieve_context(query)
-        return generate_response(MODEL_NAME, query, context)
+        result = generate_response(model, query, context=context, mode="rag")
 
     elif query_type == "coding":
-        return generate_response(MODEL_NAME, query)
+        result = generate_response(model, query, mode="basic")
 
     elif query_type == "reasoning":
-        prompt = f"Explain step by step: {query}"
-        return generate_response(MODEL_NAME, prompt)
+        result = generate_response(model, query, mode="cot")
 
     else:
-        return generate_response(MODEL_NAME, query)
+        result = generate_response(model, query, mode="basic")
+
+    result["query_type"] = query_type
+    return result

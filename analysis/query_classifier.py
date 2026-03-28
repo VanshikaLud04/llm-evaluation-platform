@@ -1,29 +1,42 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-categories = {
-    "factual": "questions about facts, people, places, history",
-    "coding": "questions about programming, code, algorithms",
-    "reasoning": "questions asking explanation, why, how, concepts",
-    "general": "casual or general questions"
+_CATEGORIES = {
+    "factual": "questions about facts, people, places, dates, history, science",
+    "coding": "questions about programming, code, debugging, algorithms, software",
+    "reasoning": "questions asking why, how, explanation, analysis, concepts, logic",
+    "general": "casual conversation, opinions, greetings, general questions",
 }
 
-category_embeddings = {
-    k: model.encode([v])[0] for k, v in categories.items()
+_category_embeddings = {
+    k: _model.encode([v])[0] for k, v in _CATEGORIES.items()
 }
 
 
-def classify_query(query):
-    query_embedding = model.encode([query])[0]
+def classify_query(query: str) -> str:
+    query_embedding = _model.encode([query])[0]
 
-    scores = {}
-
-    for category, emb in category_embeddings.items():
-        score = cosine_similarity([query_embedding], [emb])[0][0]
-        scores[category] = score
+    scores = {
+        category: float(cosine_similarity([query_embedding], [emb])[0][0])
+        for category, emb in _category_embeddings.items()
+    }
 
     best_category = max(scores, key=scores.get)
-
     return best_category
+
+
+def classify_query_with_scores(query: str) -> dict:
+   
+    query_embedding = _model.encode([query])[0]
+
+    scores = {
+        category: round(float(cosine_similarity([query_embedding], [emb])[0][0]), 4)
+        for category, emb in _category_embeddings.items()
+    }
+
+    return {
+        "category": max(scores, key=scores.get),
+        "scores": scores,
+    }
