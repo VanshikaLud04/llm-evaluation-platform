@@ -4,17 +4,9 @@ A self-built benchmarking framework for local LLMs — evaluates hallucination r
 
 Built as an open-source alternative to LangSmith for **locally-run models via Ollama**, with zero cloud dependencies.
 
----
+<img width="1600" height="895" alt="image" src="https://github.com/user-attachments/assets/becf542e-1f7e-48b3-888b-5411edc639f9" />
+<img width="1600" height="1067" alt="image" src="https://github.com/user-attachments/assets/ca3b956c-10ee-4177-9e12-4029829a95f2" />
 
-## Demo
-
-### Experiment running — Phi and TinyLlama across 100 questions
-![Experiment run](docs/experiment.png)
-
-### Frontend — RAG vs No-RAG comparison on a live query
-![Frontend UI](docs/frontend.png)
-
----
 
 ## Key Findings
 
@@ -155,6 +147,7 @@ npm install && npm run dev
 ```
 
 ---
+
 
 ## API Endpoints
 
