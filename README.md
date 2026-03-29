@@ -6,24 +6,49 @@ Built as an open-source alternative to LangSmith for **locally-run models via Ol
 
 ---
 
+## Demo
+
+### Experiment running — Phi and TinyLlama across 100 questions
+![Experiment run](docs/experiment.png)
+
+### Frontend — RAG vs No-RAG comparison on a live query
+![Frontend UI](docs/frontend.png)
+
+---
+
 ## Key Findings
 
-> Run `python experiments/run_experiment.py` to reproduce these results.
+Benchmarked **Phi** and **TinyLlama** across **100 factual QA pairs** (50 questions × 2 models), evaluated with and without RAG.
 
-| Model | Hallucination (no RAG) | Hallucination (RAG) | Improvement | Avg Latency (RAG) |
-|---|---|---|---|---|
-| phi | ~XX% | ~XX% | -XX% | X.Xs |
-| tinyllama | ~XX% | ~XX% | -XX% | X.Xs |
-| mistral | ~XX% | ~XX% | -XX% | X.Xs |
+### Overall: RAG vs No RAG
 
-> ⬆ Fill in these numbers after running the experiment. They become your resume bullet.
+| Mode | Hallucination Rate | Avg Latency |
+|---|---|---|
+| No RAG | **28%** | 0.55s |
+| RAG | 55% | 0.46s |
 
-### Observations (fill in after running)
+> **Counterintuitive finding:** RAG *increased* hallucination rate by 27 percentage points. A small knowledge base (10 chunks covering ~10% of questions) caused retrieval to return irrelevant context — actively misleading the models rather than grounding them. This shows that **RAG quality depends entirely on knowledge base coverage**, not just retrieval architecture.
 
-- **RAG helped Phi significantly** — hallucination dropped from ~70% to ~40%, but at a 3x latency cost
-- **TinyLlama showed minimal improvement with RAG** — suggesting the model is too small to effectively use retrieved context
-- **Mistral was the most accurate** but the slowest, making it unsuitable for real-time use cases
-- **Query routing mattered** — factual questions correctly routed to RAG mode; coding questions bypassed retrieval entirely, saving ~2s per query
+### Per-Model Breakdown (RAG mode)
+
+| Model | Hallucination Rate | Avg Latency |
+|---|---|---|
+| **Phi** | 26% | 0.57s |
+| **TinyLlama** | 84% | 0.35s |
+
+### What the numbers show
+
+**1. Model size dominates accuracy — 58 point gap.**
+Phi (2.7B) hallucinated on 26% of questions vs TinyLlama's 84% under identical conditions. For factual QA, model capability matters far more than retrieval architecture when the knowledge base is small.
+
+**2. TinyLlama is fast but unusable for factual tasks.**
+At 0.35s avg latency, TinyLlama is ~38% faster than Phi — but an 84% hallucination rate makes it unsuitable for any production use case where answers need to be correct.
+
+**3. RAG hurt both models when knowledge base coverage was low.**
+The knowledge base covered ~10 of 100 questions. For the other 90, retrieval returned loosely related chunks that added noise. Both models anchored on wrong context instead of using their parametric knowledge — a known RAG failure mode at low coverage.
+
+**4. Query routing eliminated unnecessary retrieval overhead.**
+The semantic classifier correctly bypassed RAG for coding and reasoning queries, saving ~0.1s per non-factual query with no accuracy loss.
 
 ---
 
@@ -33,33 +58,31 @@ Built as an open-source alternative to LangSmith for **locally-run models via Ol
 llm-evaluation-platform/
 │
 ├── api/
-│   └── app.py                  # FastAPI — /ask, /compare, /metrics, /models
+│   └── app.py                     # FastAPI — /ask, /compare, /metrics, /models
 │
 ├── llm/
-│   ├── generator.py            # Prompt builder + Ollama query (5 modes)
-│   └── router.py               # Routes query type → generation mode
+│   ├── generator.py               # Prompt builder + Ollama query (5 modes: basic, rag, strict, cot, verify)
+│   └── router.py                  # Routes query type → generation mode
 │
 ├── retrieval/
-│   └── rag_engine.py           # Semantic retrieval over knowledge base
+│   └── rag_engine.py              # Semantic retrieval via sentence-transformers
 │
 ├── analysis/
-│   ├── query_classifier.py     # Classifies: factual / coding / reasoning / general
-│   ├── hallucination_detector.py  # Cosine similarity vs ground truth
-│   └── visualize.py            # Saves comparison plots as PNG
+│   ├── query_classifier.py        # Classifies: factual / coding / reasoning / general
+│   ├── hallucination_detector.py  # Cosine similarity vs ground truth (threshold: 0.5)
+│   └── visualize.py               # Saves comparison bar charts as PNG
 │
 ├── metrics/
-│   └── metrics_engine.py       # Per-model hallucination rate + latency aggregation
+│   └── metrics_engine.py          # Per-model hallucination rate + latency aggregation
 │
 ├── experiments/
-│   └── run_experiment.py       # Batch runner — all models × all questions
+│   └── run_experiment.py          # Batch runner — all models × all questions
 │
 ├── datasets/
-│   └── factual_qa.json         # 100 factual QA pairs with ground truth (8 categories)
-│
-├── experiment_logs/            # Auto-generated output: JSON + plots per run
+│   └── factual_qa.json            # 100 factual QA pairs with ground truth (8 categories)
 │
 └── frontend/
-    └── src/App.jsx             # React UI — ask / compare / metrics views
+    └── src/App.jsx                # React UI — ask / compare / metrics
 ```
 
 ---
@@ -72,14 +95,14 @@ User Query
     ▼
 QueryClassifier              ← sentence-transformers cosine similarity
     │
-    ├── factual  ──→  RAGEngine.retrieve()  ──→  Generator (rag mode)
-    ├── coding   ──────────────────────────────→  Generator (basic mode)
-    ├── reasoning ─────────────────────────────→  Generator (cot mode)
-    └── general  ──────────────────────────────→  Generator (basic mode)
+    ├── factual   ──→  RAGEngine.retrieve()  ──→  Generator (rag mode)
+    ├── coding    ──────────────────────────────→  Generator (basic mode)
+    ├── reasoning ──────────────────────────────→  Generator (cot mode)
+    └── general   ──────────────────────────────→  Generator (basic mode)
                                                         │
                                                         ▼
                                                HallucinationDetector
-                                               (cosine sim vs ground truth)
+                                               (cosine similarity vs ground truth)
                                                         │
                                                         ▼
                                                MetricsEngine → experiment_logs/
@@ -108,26 +131,27 @@ cd llm-evaluation-platform
 pip install -r requirements.txt
 ```
 
-### Run the API
-
-```bash
-cd api
-uvicorn app:app --reload --port 8000
-```
-
 ### Run a batch experiment
 
 ```bash
 python experiments/run_experiment.py
 ```
 
-Saves timestamped results + plots to `experiment_logs/`.
+Saves timestamped JSON results + PNG plots to `experiment_logs/`.
+
+### Run the API
+
+```bash
+# Run from project root
+uvicorn api.app:app --reload --port 8000
+```
 
 ### Run the frontend
 
 ```bash
 cd frontend
 npm install && npm run dev
+# → http://localhost:3000
 ```
 
 ---
@@ -141,13 +165,44 @@ npm install && npm run dev
 | `GET /metrics` | Latest experiment metrics from logs |
 | `GET /models` | Available Ollama models on this machine |
 
+### Example — `/compare`
+
+```json
+{
+  "query": "What is the capital of France?",
+  "model": "mistral",
+  "no_rag": {
+    "answer": "The capital of France is Paris.",
+    "latency": 126.78
+  },
+  "rag": {
+    "answer": "Paris is the capital of France.",
+    "latency": 41.66,
+    "context_used": "Paris is the capital and largest city of France."
+  }
+}
+```
+
 ---
 
 ## Hallucination Detection
 
-Uses semantic similarity via `sentence-transformers` (`all-MiniLM-L6-v2`). An answer is flagged as a hallucination if cosine similarity to ground truth is below **0.5**.
+Uses semantic similarity via `sentence-transformers` (`all-MiniLM-L6-v2`). An answer is flagged as hallucination if cosine similarity to ground truth falls below **0.5**.
 
-Threshold chosen empirically — 0.7 (the naive choice) produced false positives on short correct answers like "Paris" or "Au" because sentence embeddings of short strings are naturally lower in magnitude.
+Threshold chosen empirically — the naive 0.7 threshold produced false positives on short correct answers like "Paris" or "Au" because sentence embeddings of short strings naturally score lower in magnitude.
+
+---
+
+## Tech Stack
+
+| Layer | Tech |
+|---|---|
+| LLM inference | Ollama (local, no API key) |
+| Backend | FastAPI + uvicorn |
+| Semantic search + hallucination | sentence-transformers (`all-MiniLM-L6-v2`) |
+| Metrics + logging | Python + JSON |
+| Visualisation | matplotlib |
+| Frontend | React + Vite |
 
 ---
 
@@ -157,26 +212,12 @@ Threshold chosen empirically — 0.7 (the naive choice) produced false positives
 ollama pull llama3
 ```
 
-No code changes. It auto-appears in `/models` and the frontend dropdown.
+No code changes needed — it auto-appears in `/models` and the frontend dropdown.
 
 ---
 
-## Tech Stack
+## Limitations
 
-| Layer | Tech |
-|---|---|
-| LLM inference | Ollama (local, no API key needed) |
-| Backend | FastAPI + uvicorn |
-| Semantic search + hallucination | sentence-transformers (`all-MiniLM-L6-v2`) |
-| Metrics | Python + JSON logs |
-| Visualisation | matplotlib (non-blocking, saves to PNG) |
-| Frontend | React + Vite |
-
----
-
-## What I learned
-
-- RAG benefit is model-size dependent — smaller models like TinyLlama struggle to use retrieved context effectively
-- Prompt mode matters: `strict` mode reduced hallucinations vs `rag` mode by forcing the model to stay within context
-- Cosine similarity works well as a hallucination proxy for factual QA but breaks on reasoning questions — a real limitation
-- Query routing is a meaningful optimisation — bypassing RAG for coding/reasoning saved ~2s per query with no accuracy loss
+- Knowledge base covers ~10% of dataset — RAG results reflect low-coverage retrieval, not RAG at scale
+- Hallucination detection uses cosine similarity, not NLI — may miss subtle factual errors that are semantically close but factually wrong
+- Only 2 models benchmarked — results may not generalise to larger models
