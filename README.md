@@ -1,8 +1,10 @@
 # LLM Evaluation Platform
 
-A self-built benchmarking framework for local LLMs — evaluates hallucination rate, latency, and RAG effectiveness across multiple models on a 100-question factual QA dataset.
+> Built to answer a simple question: *Does RAG actually make LLMs more reliable?*
 
-Built as an open-source alternative to LangSmith for **locally-run models via Ollama**, with zero cloud dependencies.
+A system to measure and analyze LLM reliability — built to quantify hallucination, latency, and the real impact of RAG on local models.
+
+Designed as a lightweight, local alternative to LangSmith, enabling controlled experiments without any cloud dependency.
 
 <img width="1600" height="895" alt="image" src="https://github.com/user-attachments/assets/becf542e-1f7e-48b3-888b-5411edc639f9" />
 <img width="1600" height="1067" alt="image" src="https://github.com/user-attachments/assets/ca3b956c-10ee-4177-9e12-4029829a95f2" />
@@ -22,7 +24,9 @@ Benchmarked **Phi** and **TinyLlama** across **100 factual QA pairs** (50 questi
 | No RAG | **28%** | 0.55s |
 | RAG | 55% | 0.46s |
 
-> **Counterintuitive finding:** RAG *increased* hallucination rate by 27 percentage points. A small knowledge base (10 chunks covering ~10% of questions) caused retrieval to return irrelevant context — actively misleading the models rather than grounding them. This shows that **RAG quality depends entirely on knowledge base coverage**, not just retrieval architecture.
+> **Counterintuitive finding:** : RAG increased hallucination from 28% → 55%.
+
+Root cause: low knowledge base coverage (~10%) caused retrieval to inject irrelevant context, actively misleading the model instead of grounding it.
 
 ### Per-Model Breakdown (RAG mode)
 
@@ -33,11 +37,11 @@ Benchmarked **Phi** and **TinyLlama** across **100 factual QA pairs** (50 questi
 
 ### What the numbers show
 
-**1. Model size dominates accuracy — 58 point gap.**
-Phi (2.7B) hallucinated on 26% of questions vs TinyLlama's 84% under identical conditions. For factual QA, model capability matters far more than retrieval architecture when the knowledge base is small.
+**1. Model size dominates accuracy **
+Phi (2.7B) hallucinated on 26% of queries vs TinyLlama’s 84% — a 58-point gap under identical conditions.
 
-**2. TinyLlama is fast but unusable for factual tasks.**
-At 0.35s avg latency, TinyLlama is ~38% faster than Phi — but an 84% hallucination rate makes it unsuitable for any production use case where answers need to be correct.
+**2. TinyLlama is fast but unrelaiable**
+~38% lower latency (0.35s vs 0.57s), but 84% hallucination rate makes it unusable for factual tasks.
 
 **3. RAG hurt both models when knowledge base coverage was low.**
 The knowledge base covered ~10 of 100 questions. For the other 90, retrieval returned loosely related chunks that added noise. Both models anchored on wrong context instead of using their parametric knowledge — a known RAG failure mode at low coverage.
@@ -45,10 +49,12 @@ The knowledge base covered ~10 of 100 questions. For the other 90, retrieval ret
 **4. Query routing eliminated unnecessary retrieval overhead.**
 The semantic classifier correctly bypassed RAG for coding and reasoning queries, saving ~0.1s per non-factual query with no accuracy loss.
 
+
+> **Key takeaway**: RAG is not inherently beneficial — its effectiveness depends entirely on retrieval quality and knowledge base coverage.
 ---
 
 ## Architecture
-
+Modular architecture separating query understanding, retrieval, generation, and evaluation — enabling controlled experimentation of each component.
 ```
 llm-evaluation-platform/
 │
@@ -102,7 +108,7 @@ QueryClassifier              ← sentence-transformers cosine similarity
                                                         ▼
                                                MetricsEngine → experiment_logs/
 ```
-
+This design allows isolating the impact of each stage (classification, retrieval, prompting) on final model behavior.
 ---
 
 ## Setup
@@ -217,3 +223,4 @@ No code changes needed — it auto-appears in `/models` and the frontend dropdow
 - Knowledge base covers ~10% of dataset — RAG results reflect low-coverage retrieval, not RAG at scale
 - Hallucination detection uses cosine similarity, not NLI — may miss subtle factual errors that are semantically close but factually wrong
 - Only 2 models benchmarked — results may not generalise to larger models
+- - Results highlight behavior under constrained conditions — not absolute model capability
