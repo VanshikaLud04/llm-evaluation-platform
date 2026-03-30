@@ -11,6 +11,9 @@ Built as an open-source alternative to LangSmith for **locally-run models via Ol
 ## Key Findings
 
 Benchmarked **Phi** and **TinyLlama** across **100 factual QA pairs** (50 questions × 2 models), evaluated with and without RAG.
+<img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/2408446c-cd68-42dd-9665-55dafd47f039" />
+<img width="1500" height="600" alt="image" src="https://github.com/user-attachments/assets/71a6de28-3ad7-44f9-a6ed-49e07c38f9e0" />
+
 
 ### Overall: RAG vs No RAG
 
