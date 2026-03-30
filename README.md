@@ -108,7 +108,9 @@ QueryClassifier              ← sentence-transformers cosine similarity
                                                         ▼
                                                MetricsEngine → experiment_logs/
 ```
-This design allows isolating the impact of each stage (classification, retrieval, prompting) on final model behavior.
+This design allows isolating the impact of each stage (classification, retrieval, prompting) on final model behaviour.
+
+
 ---
 
 ## Setup
@@ -223,4 +225,4 @@ No code changes needed — it auto-appears in `/models` and the frontend dropdow
 - Knowledge base covers ~10% of dataset — RAG results reflect low-coverage retrieval, not RAG at scale
 - Hallucination detection uses cosine similarity, not NLI — may miss subtle factual errors that are semantically close but factually wrong
 - Only 2 models benchmarked — results may not generalise to larger models
-- - Results highlight behavior under constrained conditions — not absolute model capability
+- Results highlight behavior under constrained conditions — not absolute model capability
